@@ -2,6 +2,7 @@
 using System.Net;
 using System.Threading.Tasks;
 using BlazorShared.Models;
+using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Http;
 using Microsoft.eShopWeb.ApplicationCore.Exceptions;
 
@@ -24,6 +25,8 @@ public class ExceptionMiddleware
         }
         catch (Exception ex)
         {
+            var a = new TelemetryClient();
+            a.TrackException(ex);
             await HandleExceptionAsync(httpContext, ex);        
         }
     }

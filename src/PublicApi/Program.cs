@@ -27,6 +27,11 @@ using MinimalApi.Endpoint.Configurations.Extensions;
 using MinimalApi.Endpoint.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
+Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions aiOptions
+                = new Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions();
+aiOptions.RequestCollectionOptions.TrackExceptions = true;
+builder.Services.AddApplicationInsightsTelemetry(aiOptions);
+
 
 builder.Services.AddEndpoints();
 

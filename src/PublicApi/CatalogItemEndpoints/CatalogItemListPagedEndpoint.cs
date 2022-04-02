@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -20,11 +21,13 @@ public class CatalogItemListPagedEndpoint : IEndpoint<IResult, ListPagedCatalogI
     private IRepository<CatalogItem> _itemRepository;
     private readonly IUriComposer _uriComposer;
     private readonly IMapper _mapper;
+    private readonly IAppLogger<CatalogItemListPagedEndpoint> _appLogger;
 
-    public CatalogItemListPagedEndpoint(IUriComposer uriComposer, IMapper mapper)
+    public CatalogItemListPagedEndpoint(IUriComposer uriComposer, IMapper mapper, IAppLogger<CatalogItemListPagedEndpoint> appLogger)
     {
         _uriComposer = uriComposer;
         _mapper = mapper;
+        _appLogger = appLogger;
     }
 
     public void AddRoute(IEndpointRouteBuilder app)
@@ -45,12 +48,14 @@ public class CatalogItemListPagedEndpoint : IEndpoint<IResult, ListPagedCatalogI
 
         var filterSpec = new CatalogFilterSpecification(request.CatalogBrandId, request.CatalogTypeId);
         int totalItems = await _itemRepository.CountAsync(filterSpec);
+        _appLogger.LogInformation($"Test Number of returned items: {totalItems}");
 
         var pagedSpec = new CatalogFilterPaginatedSpecification(
             skip: request.PageIndex.Value * request.PageSize.Value,
             take: request.PageSize.Value,
             brandId: request.CatalogBrandId,
             typeId: request.CatalogTypeId);
+        throw new Exception("Cannot move further");
 
         var items = await _itemRepository.ListAsync(pagedSpec);
 
