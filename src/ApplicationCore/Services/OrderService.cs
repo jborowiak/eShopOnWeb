@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Text.Json.Serialization;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Ardalis.GuardClauses;
 using Microsoft.eShopWeb.ApplicationCore.Entities;
@@ -9,7 +6,6 @@ using Microsoft.eShopWeb.ApplicationCore.Entities.BasketAggregate;
 using Microsoft.eShopWeb.ApplicationCore.Entities.OrderAggregate;
 using Microsoft.eShopWeb.ApplicationCore.Interfaces;
 using Microsoft.eShopWeb.ApplicationCore.Specifications;
-using Newtonsoft.Json;
 
 namespace Microsoft.eShopWeb.ApplicationCore.Services;
 
@@ -53,28 +49,5 @@ public class OrderService : IOrderService
         var order = new Order(basket.BuyerId, shippingAddress, items);
 
         await _orderRepository.AddAsync(order);
-
-        await ReserveItem(items);
-
     }
-
-    private async Task ReserveItem(List<OrderItem> items)
-    {
-        var httpClient = new HttpClient();
-        //todo: add as application setting
-        var functionConnectionString = "https://orderitemsreserver20220403114348.azurewebsites.net/api/ReserveOrder";
-        var requestBody = items.Select(x => new ReservationItem
-        {
-            ItemId = x.ItemOrdered.CatalogItemId,
-            Quantity = x.Units
-        });
-        var requestMessage = new StringContent(JsonConvert.SerializeObject(requestBody));
-        var response = await httpClient.PostAsync(functionConnectionString, requestMessage);
-    }
-}
-
-internal class ReservationItem
-{
-    public int ItemId { get; set; }
-    public int Quantity { get; set; }
 }
