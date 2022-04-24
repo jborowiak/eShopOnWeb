@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Ardalis.GuardClauses;
 using Microsoft.eShopWeb.ApplicationCore.Entities;
@@ -6,6 +8,7 @@ using Microsoft.eShopWeb.ApplicationCore.Entities.BasketAggregate;
 using Microsoft.eShopWeb.ApplicationCore.Entities.OrderAggregate;
 using Microsoft.eShopWeb.ApplicationCore.Interfaces;
 using Microsoft.eShopWeb.ApplicationCore.Specifications;
+using Newtonsoft.Json;
 
 namespace Microsoft.eShopWeb.ApplicationCore.Services;
 
@@ -49,5 +52,32 @@ public class OrderService : IOrderService
         var order = new Order(basket.BuyerId, shippingAddress, items);
 
         await _orderRepository.AddAsync(order);
+
+        await CreateDeliveryOrder(order);
+    }
+
+    private async Task CreateDeliveryOrder(Order order)
+    {
+        var httpClient = new HttpClient();
+        //todo: add as application setting
+        var functionConnectionString = "https://deliveryorderprocessorjb.azurewebsites.net/api/ProcessOrder?";
+        var requestBody = new DeliveryItem
+        {
+            ShippingAddress = order.ShipToAddress,
+            FinalPrice = order.Total(),
+            Items = order.OrderItems.ToList()
+        };
+        var requestMessage = new StringContent(JsonConvert.SerializeObject(requestBody));
+        var response = await httpClient.PostAsync(functionConnectionString, requestMessage);
     }
 }
+
+internal class DeliveryItem
+{
+    public Address ShippingAddress { get; set; }
+
+    public decimal FinalPrice { get; set; }
+
+    public List<OrderItem> Items { get; set; }
+}
+
