@@ -1,27 +1,27 @@
-#See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
-
-FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
-WORKDIR /app
-EXPOSE 80
-EXPOSE 443
-
+# RUN ALL CONTAINERS FROM ROOT (folder with .sln file):
+# docker-compose build
+# docker-compose up
+#
+# RUN JUST THIS CONTAINER FROM ROOT (folder with .sln file):
+# docker build --pull -t web -f src/Web/Dockerfile .
+#
+# RUN COMMAND
+#  docker run --name eshopweb --rm -it -p 5106:5106 web
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /app
+
+COPY *.sln .
 COPY . .
-RUN dir
-#COPY ["src/PublicApi/PublicApi.csproj", "./PublicApi/"]
-#RUN dotnet restore "./PublicApi/PublicApi.csproj"
-#COPY . .
-WORKDIR "/app/src/PublicApi"
-RUN dir
+WORKDIR /app/src/Web
 RUN dotnet restore
 
-RUN dotnet build "./PublicApi.csproj" -c Release -o /app/build
+RUN dotnet publish -c Release -o out
 
-FROM build AS publish
-RUN dotnet publish "./PublicApi.csproj" -c Release -o /app/publish
-
-FROM base AS final
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS runtime
 WORKDIR /app
-COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "PublicApi.dll"]
+COPY --from=build /app/src/Web/out ./
+
+# Optional: Set this here if not setting it from docker-compose.yml
+# ENV ASPNETCORE_ENVIRONMENT Development
+
+ENTRYPOINT ["dotnet", "Web.dll"]
