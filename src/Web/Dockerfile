@@ -13,7 +13,7 @@ WORKDIR /app
 COPY *.sln .
 COPY . .
 WORKDIR /app/src/Web
-RUN dotnet restore
+RUN dotnet restore  "./Webcsproj"
 
 RUN dotnet publish -c Release -o out
 
