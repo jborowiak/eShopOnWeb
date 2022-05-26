@@ -13,7 +13,7 @@ COPY . .
 #RUN dotnet restore "./PublicApi/PublicApi.csproj"
 #COPY . .
 RUN dir
-WORKDIR "/app/src/PublicApi"
+#WORKDIR "/app/src/PublicApi"
 RUN pwd
 RUN dir
 RUN dotnet restore
