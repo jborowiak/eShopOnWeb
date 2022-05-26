@@ -10,10 +10,10 @@
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /app
 
-COPY eShopOnWeb.sln .
+COPY *.sln .
 COPY . .
 WORKDIR /app/src/Web
-RUN dotnet restore  
+RUN dotnet restore
 
 RUN dotnet publish -c Release -o out
 
