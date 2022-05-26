@@ -60,21 +60,19 @@ public class OrderService : IOrderService
 
     private async Task ReserveItem(List<OrderItem> items)
     {
-        var httpClient = new HttpClient();
-        //todo: add as application setting
-        var functionConnectionString = "https://orderitemsreserver20220403114348.azurewebsites.net/api/ReserveOrder";
         var requestBody = items.Select(x => new ReservationItem
         {
             ItemId = x.ItemOrdered.CatalogItemId,
             Quantity = x.Units
         });
-        var requestMessage = new StringContent(JsonConvert.SerializeObject(requestBody));
-        var response = await httpClient.PostAsync(functionConnectionString, requestMessage);
+        ServiceBusOrderSender serviceBusSender = new ServiceBusOrderSender();
+        await serviceBusSender.SendMessage(requestBody.ToList());
     }
 }
 
-internal class ReservationItem
+public class ReservationItem
 {
     public int ItemId { get; set; }
     public int Quantity { get; set; }
 }
+
