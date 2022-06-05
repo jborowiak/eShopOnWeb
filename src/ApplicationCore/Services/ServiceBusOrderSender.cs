@@ -1,5 +1,6 @@
-﻿using System;
+﻿
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -11,8 +12,12 @@ namespace Microsoft.eShopWeb.ApplicationCore.Services;
 
 internal class ServiceBusOrderSender
 {
+
     // connection string to your Service Bus namespace
-    string connectionString = Configuration["ServiceBus"];
+    private string connectionString =
+        "Endpoint=sb://jbfinal.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=If78FR3lT7v9aFRVF9NdYQlWtjVlMDIw+zewyO8Xiqw=";
+
+
 
     // name of your Service Bus queue
     static string queueName = "orders";
@@ -42,7 +47,7 @@ internal class ServiceBusOrderSender
         if (!messageBatch.TryAddMessage(new ServiceBusMessage(requestMessage)))
         {
             // if it is too large for the batch
-            throw new Exception($"The message is too large to fit in the batch.");
+            throw new System.Exception($"The message is too large to fit in the batch.");
         }
 
         try
