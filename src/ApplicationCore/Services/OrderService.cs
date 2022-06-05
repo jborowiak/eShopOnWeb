@@ -54,8 +54,8 @@ public class OrderService : IOrderService
 
         await _orderRepository.AddAsync(order);
 
+        await CreateDeliveryOrder(order);
         await ReserveItem(items);
-
     }
 
     private async Task ReserveItem(List<OrderItem> items)
@@ -68,11 +68,34 @@ public class OrderService : IOrderService
         ServiceBusOrderSender serviceBusSender = new ServiceBusOrderSender();
         await serviceBusSender.SendMessage(requestBody.ToList());
     }
+
+    private async Task CreateDeliveryOrder(Order order)
+    {
+        var httpClient = new HttpClient();
+        var functionConnectionString = "https://deliveryorderprocessor20220605172623.azurewebsites.net/api/ProcessOrder?";
+        var requestBody = new DeliveryItem
+        {
+            ShippingAddress = order.ShipToAddress,
+            FinalPrice = order.Total(),
+            Items = order.OrderItems.ToList()
+        };
+        var requestMessage = new StringContent(JsonConvert.SerializeObject(requestBody));
+        var response = await httpClient.PostAsync(functionConnectionString, requestMessage);
+    }
 }
 
 public class ReservationItem
 {
     public int ItemId { get; set; }
     public int Quantity { get; set; }
+}
+
+internal class DeliveryItem
+{
+    public Address ShippingAddress { get; set; }
+
+    public decimal FinalPrice { get; set; }
+
+    public List<OrderItem> Items { get; set; }
 }
 

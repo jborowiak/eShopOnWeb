@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
@@ -14,10 +15,13 @@ internal class ServiceBusOrderSender
 {
 
     // connection string to your Service Bus namespace
-    private string connectionString =
-        "Endpoint=sb://jbfinal.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=If78FR3lT7v9aFRVF9NdYQlWtjVlMDIw+zewyO8Xiqw=";
+    private string connectionString = "";
+        
 
-
+    public ServiceBusOrderSender()
+    {
+        connectionString = Environment.GetEnvironmentVariable("ServiceBus");
+    }
 
     // name of your Service Bus queue
     static string queueName = "orders";
