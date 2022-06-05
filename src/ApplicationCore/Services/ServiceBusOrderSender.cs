@@ -12,7 +12,7 @@ namespace Microsoft.eShopWeb.ApplicationCore.Services;
 internal class ServiceBusOrderSender
 {
     // connection string to your Service Bus namespace
-    static string connectionString = "Endpoint=sb://orderreserverbus.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=1d1L912EqV7fNyaD4MjGf/PHF8ZtZMJLzGZ0soXYpc4=";
+    string connectionString = Configuration["ServiceBus"];
 
     // name of your Service Bus queue
     static string queueName = "orders";
